@@ -1,0 +1,21 @@
+{
+  "name": "@tap/db",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "generate": "drizzle-kit generate",
+    "migrate": "drizzle-kit migrate",
+    "studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.0",
+    "drizzle-orm": "^0.39.0"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.30.6",
+    "typescript": "~5.8.2"
+  }
+}

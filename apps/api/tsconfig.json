@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022"],
+    "outDir": "dist",
+    "rootDir": "src",
+    "strict": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "noEmit": false,
+    "paths": {
+      "@tap/shared": ["../../packages/shared/src"],
+      "@tap/shared/*": ["../../packages/shared/src/*"]
+    }
+  },
+  "include": ["src"]
+}
