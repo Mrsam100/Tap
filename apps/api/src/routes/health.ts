@@ -1,8 +1,13 @@
 import { Hono } from 'hono';
 import { db } from '@tap/db';
 import { sql } from 'drizzle-orm';
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
+import { readFileSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+// ESM-compatible __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export const healthRoutes = new Hono();
 
@@ -11,7 +16,7 @@ const startedAt = Date.now();
 // Read version once at startup from the root package.json
 let appVersion = '0.0.0';
 try {
-  const pkgPath = resolve(__dirname, '../../package.json');
+  const pkgPath = resolve(__dirname, '../../../package.json');
   const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
   appVersion = pkg.version || appVersion;
 } catch {

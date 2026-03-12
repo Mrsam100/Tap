@@ -50,15 +50,15 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     name: 'Free',
     priceCents: 0,
     stripePriceId: null,
-    commerceFeePercent: 6,
+    commerceFeePercent: 5, // reduced from 6% — competitive with Gumroad (10%)
     features: {
-      maxProducts: 3,
+      maxProducts: 5,        // up from 3 — let users taste monetization
       customDomain: false,
       removeBranding: false,
-      csvExport: false,
+      csvExport: true,       // no reason to gate this
       apiAccess: false,
       tipsEnabled: true,
-      connectPayouts: false,
+      connectPayouts: true,  // we still earn via commerceFeePercent
     },
   },
   starter: {

@@ -32,6 +32,28 @@ import { requestId } from './middleware/request-id';
 import { csrfProtection } from './middleware/csrf';
 import { cleanupExpiredData } from './lib/auth';
 
+// ── Startup env validation ─────────────────────────────────────────
+const REQUIRED_ENV = ['DATABASE_URL'] as const;
+const missing = REQUIRED_ENV.filter(k => !process.env[k]);
+if (missing.length > 0) {
+  console.error(`[FATAL] Missing required environment variables: ${missing.join(', ')}`);
+  console.error('[FATAL] Server cannot start without these. Check your .env file.');
+  process.exit(1);
+}
+
+// Warn about optional-but-important vars
+const OPTIONAL_ENV: Record<string, string> = {
+  RESEND_API_KEY: 'email sending (verification, password reset)',
+  STRIPE_SECRET_KEY: 'billing and payments',
+  GOOGLE_CLIENT_ID: 'Google OAuth login',
+  GITHUB_CLIENT_ID: 'GitHub OAuth login',
+};
+for (const [key, purpose] of Object.entries(OPTIONAL_ENV)) {
+  if (!process.env[key]) {
+    console.warn(`[WARN] ${key} not set — ${purpose} will be unavailable`);
+  }
+}
+
 const IS_PROD = process.env.NODE_ENV === 'production';
 const app = new Hono();
 
@@ -99,6 +121,7 @@ app.use('/api/ai/*', rateLimiter({ windowMs: 60_000, max: 20 }));
 // Rate limit auth endpoints
 app.use('/api/auth/login', rateLimiter({ windowMs: 15 * 60_000, max: 5 }));
 app.use('/api/auth/register', rateLimiter({ windowMs: 15 * 60_000, max: 5 }));
+app.use('/api/auth/check-username', rateLimiter({ windowMs: 60_000, max: 20, keyPrefix: 'check-username' }));
 app.use('/api/auth/forgot-password', rateLimiter({ windowMs: 15 * 60_000, max: 3 }));
 // V3: rate limit token-based endpoints to prevent brute-force
 app.use('/api/auth/verify-email', rateLimiter({ windowMs: 15 * 60_000, max: 3 }));
@@ -222,7 +245,16 @@ serve({
   port,
 });
 
-// V5+V6: Cleanup expired sessions and tokens every hour
+// Run cleanup once at startup, then every hour
+cleanupExpiredData().catch(err => console.error('Cleanup error (startup):', err));
 setInterval(() => {
   cleanupExpiredData().catch(err => console.error('Cleanup error:', err));
 }, 60 * 60 * 1000);
+
+// ── Graceful shutdown ─────────────────────────────────────────────
+function shutdown(signal: string) {
+  console.log(`[${signal}] Shutting down gracefully...`);
+  process.exit(0);
+}
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));

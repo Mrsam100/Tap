@@ -10,6 +10,7 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1007.0",
     "@google/genai": "^1.44.0",
     "@hono/node-server": "^1.14.0",
     "@node-rs/argon2": "^2.0.2",
